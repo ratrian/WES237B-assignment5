@@ -9,6 +9,7 @@
 #include "./loss.h"
 #include "./optimizer.h"
 #include "./utils.h"
+#include "layer/custom/gpu.h"
 
 class Network {
  private:

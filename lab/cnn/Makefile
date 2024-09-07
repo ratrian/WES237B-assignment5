@@ -1,23 +1,24 @@
 CC       = g++
 CFLAGS   = -g -Wall
-INCFLAGS := -I.
+INCFLAGS := -I../../helper_lib -I.
+LDFLAGS  := ../../helper_lib/*.o -lm
 
 ifeq ($(shell uname -o), Darwin)
-	LDFLAGS = -framework OpenCL
+	LDFLAGS += -framework OpenCL
 else ifeq ($(shell uname -o), GNU/Linux) # Assumes NVIDIA GPU
-	LDFLAGS  = -L/usr/local/cuda/lib64 -lOpenCL
+	LDFLAGS  += -L/usr/local/cuda/lib64 -lOpenCL
 	INCFLAGS += -I/usr/local/cuda/include
 else # Android
-	LDFLAGS = -lOpenCL
+	LDFLAGS += -lOpenCL
 endif
 
 all: m2 m1
 
-m2:		m2.o ece408net.o src/network.o src/mnist.o layer.sentinel loss.sentinel custom.sentinel
-		$(CC) $(CFLAGS)  m2.o ece408net.o src/network.o src/mnist.o src/layer/*.o src/loss/*.o src/layer/custom/*.o -o m2 $(INCFLAGS) $(LDFLAGS)
+m2:		../../helper_lib/helper_lib.a m2.o ece408net.o src/network.o src/mnist.o layer.sentinel loss.sentinel custom.sentinel
+		$(CC) $(CFLAGS)  m2.o ece408net.o src/network.o src/mnist.o src/layer/*.o src/loss/*.o src/layer/custom/*.o $(INCFLAGS) $(LDFLAGS) -o m2
 
-m1:		m1.o ece408net.o src/network.o src/mnist.o layer.sentinel loss.sentinel custom.sentinel
-		$(CC) $(CFLAGS)  m1.o ece408net.o src/network.o src/mnist.o src/layer/*.o src/loss/*.o src/layer/custom/*.o -o m1 $(INCFLAGS) $(LDFLAGS)
+m1:		../../helper_lib/helper_lib.a m1.o ece408net.o src/network.o src/mnist.o layer.sentinel loss.sentinel custom.sentinel
+		$(CC) $(CFLAGS)  m1.o ece408net.o src/network.o src/mnist.o src/layer/*.o src/loss/*.o src/layer/custom/*.o $(INCFLAGS) $(LDFLAGS) -o m1
 
 # debug:	debug_m2
 
@@ -62,9 +63,10 @@ layer.sentinel:		src/layer/conv.cc src/layer/ave_pooling.cc src/layer/conv_cpu.c
 		$(CC) $(CFLAGS) -c src/layer/softmax.cc -o src/layer/softmax.o $(INCFLAGS) $(LDFLAGS)
 		touch layer.sentinel
 
-custom.sentinel: src/layer/custom/cpu-new-forward.cc src/layer/custom/gpu-utils.cc src/layer/custom/new-forward.cc
+custom.sentinel: src/layer/custom/cpu-new-forward.cc src/layer/custom/gpu-utils.cc src/layer/custom/gpu.cc src/layer/custom/new-forward.cc
 		$(CC) $(CFLAGS) -c src/layer/custom/cpu-new-forward.cc -o src/layer/custom/cpu-new-forward.o $(INCFLAGS) $(LDFLAGS)
 		$(CC) $(CFLAGS) -c src/layer/custom/gpu-utils.cc -o src/layer/custom/gpu-utils.o $(INCFLAGS) $(LDFLAGS)
+		$(CC) $(CFLAGS) -c src/layer/custom/gpu.cc -o src/layer/custom/gpu.o $(INCFLAGS) $(LDFLAGS)
 		$(CC) $(CFLAGS) -c src/layer/custom/new-forward.cc -o src/layer/custom/new-forward.o $(INCFLAGS) $(LDFLAGS)
 		touch custom.sentinel
 
@@ -73,12 +75,16 @@ loss.sentinel:           src/loss/cross_entropy_loss.cc src/loss/mse_loss.cc
 		$(CC) $(CFLAGS) -c src/loss/mse_loss.cc -o src/loss/new-mse_loss.o $(INCFLAGS) $(LDFLAGS)
 		touch loss.sentinel
 
+../../helper_lib/helper_lib.a: 
+	cd ../../helper_lib; make
+
 
 clean:
 		find . -name "*.o" -type f -delete
 		rm *.sentinel
 		rm m2 || true
 		rm m1 || true
+		cd ../../helper_lib; make clean
 
 cpu:		m1
 		./m1 1000

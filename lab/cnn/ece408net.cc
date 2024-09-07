@@ -44,13 +44,15 @@ Network createNetwork_CPU(bool customCPUConv)
   return dnn;
 }
 
-Network createNetwork_GPU()
+Network createNetwork_GPU(GPU* gpu)
 {
   Network dnn;
 
   Layer* conv1 = new Conv_Custom(1, 86, 86, 4, 7, 7);
+  ((Conv_Custom*)conv1)->gpu = gpu;
   Layer* pool1 = new MaxPooling(4, 80, 80, 2, 2, 2);
   Layer* conv2 = new Conv_Custom(4, 40, 40, 16, 7, 7);
+  ((Conv_Custom*)conv2)->gpu = gpu;
   Layer* pool2 = new MaxPooling(16, 34, 34, 4, 4, 4);
   Layer* fc3 = new FullyConnected(pool2->output_dim(), 32);
   Layer* fc4 = new FullyConnected(32, 10);

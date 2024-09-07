@@ -30,6 +30,7 @@
 #include "src/network.h"
 #include "src/optimizer.h"
 #include "src/optimizer/sgd.h"
+#include "src/layer/custom/gpu.h"
 
 Network createNetwork_CPU(bool customCPUConv = false);
-Network createNetwork_GPU();
+Network createNetwork_GPU(GPU* gpu);

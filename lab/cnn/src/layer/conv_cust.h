@@ -6,6 +6,7 @@
 #include "../layer.h"
 #include "./custom/gpu-new-forward.h"
 #include "./custom/gpu-utils.h"
+#include "./custom/gpu.h"
 
 class Conv_Custom: public Layer {
  private:
@@ -38,13 +39,15 @@ class Conv_Custom: public Layer {
   void init();
 
  public:
+  GPU* gpu;
+
   Conv_Custom(int channel_in, int height_in, int width_in, int channel_out,
        int height_kernel, int width_kernel, int stride = 1, int pad_w = 0,
        int pad_h = 0) :
        dim_in(channel_in * height_in * width_in),
        channel_in(channel_in), height_in(height_in), width_in(width_in),
        channel_out(channel_out), height_kernel(height_kernel),
-       width_kernel(width_kernel), stride(stride), pad_w(pad_w), pad_h(pad_h)
+       width_kernel(width_kernel), stride(stride), pad_w(pad_w), pad_h(pad_h), gpu(0)
   { init(); }
 
   void forward(const Matrix& bottom);

@@ -15,7 +15,6 @@ void Conv_Custom::init() {
   set_normal_random(bias.data(), bias.size(), 0, 0.01);
   //std::cout << weight.colwise().sum() << std::endl;
   //std::cout << weight.colwise().sum() + bias.transpose() << std::endl;
-  // gpuInterface.get_device_properties();
 }
 
 
@@ -32,11 +31,13 @@ void Conv_Custom::forward(const Matrix& bottom) {
   const int C = channel_in;
   const int K = height_kernel; // Assuming width_kernel is also K
 
-  float *x_d;
-  float *y_d;
-  float *k_d;
+  cl_mem x_d;
+  cl_mem y_d;
+  cl_mem k_d;
 
   std::cout<<"Conv-GPU=="<<std::endl;
+
+  gpuInterface.gpu = gpu;
 
   // Launch marker kernel to aid with student function timing
   gpuUtils.insert_pre_barrier_kernel();
@@ -50,7 +51,6 @@ void Conv_Custom::forward(const Matrix& bottom) {
   auto start_time_kernel = std::chrono::high_resolution_clock::now();
   // Hand off to GPU for computation
   gpuInterface.conv_forward_gpu(y_d, x_d, k_d, B, M, C, height_in, width_in, K);
-  //cudaDeviceSynchronize(); // TODO
   // Stop kernel timer
   auto end_time_kernel = std::chrono::high_resolution_clock::now();
   

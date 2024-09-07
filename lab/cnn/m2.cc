@@ -1,6 +1,11 @@
 #include "ece408net.h"
 
+#include "src/layer/custom/gpu.h"
+
 void inference_only(int batch_size) {
+
+  GPU gpu;
+  gpu.setup();
 
   std::cout<<"Loading fashion-mnist data...";
   MNIST dataset("./data/");
@@ -8,7 +13,7 @@ void inference_only(int batch_size) {
   std::cout<<"Done"<<std::endl;
   
   std::cout<<"Loading model...";
-  Network dnn = createNetwork_GPU();
+  Network dnn = createNetwork_GPU(&gpu);
   std::cout<<"Done"<<std::endl;
 
   dnn.forward(dataset.test_data);
@@ -16,6 +21,8 @@ void inference_only(int batch_size) {
   std::cout<<std::endl;
   std::cout<<"Test Accuracy: "<<acc<< std::endl;
   std::cout<<std::endl;
+
+  gpu.teardown();
 }
 
 int main(int argc, char* argv[]) {
