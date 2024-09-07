@@ -1,6 +1,6 @@
 CC       = g++
 CFLAGS   = -g -Wall
-INCFLAGS :=
+INCFLAGS := -I.
 
 ifeq ($(shell uname -o), Darwin)
 	LDFLAGS = -framework OpenCL
