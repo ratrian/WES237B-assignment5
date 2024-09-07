@@ -101,7 +101,7 @@ void GPUInterface::conv_forward_gpu(cl_mem device_y, const cl_mem device_x, cons
     size_t W_grid = (W_out + TILE_WIDTH - 1) / TILE_WIDTH;
     size_t H_grid = (H_out + TILE_WIDTH - 1) / TILE_WIDTH;
 
-    size_t global_item_size[3] = {(size_t)M * TILE_WIDTH, W_grid * H_grid * TILE_WIDTH, B}; 
+    size_t global_item_size[3] = {(size_t)M * TILE_WIDTH, W_grid * H_grid * TILE_WIDTH, (size_t)B}; 
     size_t local_item_size[3] = {TILE_WIDTH, TILE_WIDTH, 1};
 
     //@@ Launch the GPU Kernel here
