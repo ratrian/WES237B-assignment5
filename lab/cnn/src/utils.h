@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <iostream>
 #include <random>
+#include <chrono>       // std::chrono::system_clock
 
 typedef Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic> Matrix;
 typedef Eigen::Matrix<float, Eigen::Dynamic, 1> Vector;
@@ -24,8 +25,10 @@ inline void set_normal_random(float* arr, int n, float mu, float sigma) {
 inline void shuffle_data(Matrix& data, Matrix& labels) {
   Eigen::PermutationMatrix<Eigen::Dynamic, Eigen::Dynamic> perm(data.cols());
   perm.setIdentity();
+  // obtain a time-based seed:
+  unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
   std::shuffle(perm.indices().data(), perm.indices().data()
-                      + perm.indices().size(), std::default_random_engine(123));
+                      + perm.indices().size(), std::default_random_engine(seed));
   data = data * perm;  // permute columns
   labels = labels * perm;
 }
