@@ -11,11 +11,13 @@ else # Android
 	LDFLAGS = -lOpenCL
 endif
 
-m2:		m.o ece408net.o src/network.o src/mnist.o layer.sentinel loss.sentinel custom.sentinel
-		$(CC) $(CFLAGS)  m.o ece408net.o src/network.o src/mnist.o src/layer/*.o src/loss/*.o src/layer/custom/*.o -o m2 $(INCFLAGS) $(LDFLAGS)
+all: m2 m1
 
-m1:		m.o ece408net.o src/network.o src/mnist.o layer.sentinel loss.sentinel custom.sentinel
-		$(CC) $(CFLAGS)  m.o ece408net.o src/network.o src/mnist.o src/layer/*.o src/loss/*.o src/layer/custom/*.o -o m1 $(INCFLAGS) $(LDFLAGS)
+m2:		m2.o ece408net.o src/network.o src/mnist.o layer.sentinel loss.sentinel custom.sentinel
+		$(CC) $(CFLAGS)  m2.o ece408net.o src/network.o src/mnist.o src/layer/*.o src/loss/*.o src/layer/custom/*.o -o m2 $(INCFLAGS) $(LDFLAGS)
+
+m1:		m1.o ece408net.o src/network.o src/mnist.o layer.sentinel loss.sentinel custom.sentinel
+		$(CC) $(CFLAGS)  m1.o ece408net.o src/network.o src/mnist.o src/layer/*.o src/loss/*.o src/layer/custom/*.o -o m1 $(INCFLAGS) $(LDFLAGS)
 
 # debug:	debug_m2
 
@@ -33,8 +35,11 @@ m1:		m.o ece408net.o src/network.o src/mnist.o layer.sentinel loss.sentinel cust
 # 		nvcc -g -G -gencode arch=compute_`/usr/local/nvidia/bin/nvidia-smi --query-gpu=compute_cap --format=csv | tail -n 1 | tr -d .`,code=sm_`/usr/local/nvidia/bin/nvidia-smi --query-gpu=compute_cap --format=csv | tail -n 1 | tr -d .`  --compile src/layer/custom/new-forward.cu -o src/layer/custom/new-forward.o -I ../libgputk/ -I./
 # 		nvcc -g -G -gencode arch=compute_`/usr/local/nvidia/bin/nvidia-smi --query-gpu=compute_cap --format=csv | tail -n 1 | tr -d .`,code=sm_`/usr/local/nvidia/bin/nvidia-smi --query-gpu=compute_cap --format=csv | tail -n 1 | tr -d .` -o m2 -lm -lcuda -lrt m2.o ece408net.o src/network.o src/mnist.o src/layer/*.o src/loss/*.o src/layer/custom/*.o ../libgputk/lib/libgputk.a -I./ 
 
-m.o:		m.cc
-		$(CC) $(CFLAGS) -c m.cc -o m.o $(INCFLAGS) $(LDFLAGS)
+m2.o:		m2.cc
+		$(CC) $(CFLAGS) -c m2.cc -o m2.o $(INCFLAGS) $(LDFLAGS)
+
+m1.o:		m1.cc
+		$(CC) $(CFLAGS) -c m1.cc -o m1.o $(INCFLAGS) $(LDFLAGS)
 
 ece408net.o:    ece408net.cc
 		$(CC) $(CFLAGS) -c ece408net.cc -o ece408net.o $(INCFLAGS) $(LDFLAGS)
@@ -75,8 +80,9 @@ clean:
 		rm m2 || true
 		rm m1 || true
 
-run: 		m2
-		./m2 1000
+cpu:		m1
+		./m1 1000
 
-time: m2
-		../utils/profile.py --args ./m2 1000
+
+gpu: 		m2
+		./m2 1000
